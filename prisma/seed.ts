@@ -1,7 +1,7 @@
 import prisma from "../src/lib/db";
 
 async function main() {
-  console.log("Iniciando seed do banco de dados...");
+  console.log("Iniciando seed do banco de dados multi-contas...");
 
   // Limpar tabelas existentes
   await prisma.transaction.deleteMany();
@@ -41,10 +41,10 @@ async function main() {
 
   console.log(`${categories.length} categorias criadas.`);
 
-  // 2. Criar Perfil Financeiro Fictício Inicial (Bernardo Eleutério)
-  const profile = await prisma.profile.create({
+  // 2. Criar Perfil Pessoal ("personal")
+  const personalProfile = await prisma.profile.create({
     data: {
-      id: "single-profile",
+      id: "personal",
       fullName: "Bernardo Eleutério",
       occupation: "Desenvolvedor de Software",
       age: 24,
@@ -52,18 +52,35 @@ async function main() {
       monthlyIncome: 6500.00,
       monthlyExpenses: 2800.00,
       monthlySavingGoal: 1500.00,
-      financialGoal: "Comprar um novo notebook de alta performance e investir na bolsa",
+      financialGoal: "Comprar um novo notebook de alta performance",
       onboardingCompleted: true,
     },
   });
 
-  console.log("Perfil financeiro padrão criado.");
-
-  // 3. Criar Dívidas (Debts) de Exemplo
-  const devDate = new Date();
-  
-  const debt1 = await prisma.debt.create({
+  // 3. Criar Perfil Familiar ("family")
+  const familyProfile = await prisma.profile.create({
     data: {
+      id: "family",
+      fullName: "Família Eleutério",
+      occupation: "Orçamento Coletivo",
+      age: 45,
+      currentBalance: 12450.00,
+      monthlyIncome: 14500.00,
+      monthlyExpenses: 8200.00,
+      monthlySavingGoal: 4000.00,
+      financialGoal: "Viagem de férias em família e reserva de emergência",
+      onboardingCompleted: true,
+    },
+  });
+
+  console.log("Perfis financeiro Pessoal e Familiar criados.");
+
+  const devDate = new Date();
+
+  // --- DADOS DO PERFIL PESSOAL ---
+  const personalDebt = await prisma.debt.create({
+    data: {
+      profileId: "personal",
       debtType: "installment",
       creditor: "Lojas Americanas",
       description: "Ar Condicionado Split",
@@ -73,41 +90,57 @@ async function main() {
       paidInstallments: 2,
       dueDay: 10,
       nextDueDate: new Date(devDate.getFullYear(), devDate.getMonth(), 10),
-      notes: "Parcelado sem juros no cartão de crédito corporativo",
+      notes: "Parcelado sem juros no cartão",
       status: "active",
     },
   });
 
-  const debt2 = await prisma.debt.create({
+  // --- DADOS DO PERFIL FAMILIAR ---
+  const familyDebt1 = await prisma.debt.create({
     data: {
-      debtType: "installment",
-      creditor: "Banco do Brasil",
-      description: "Financiamento de Estudos",
-      totalAmount: 5000.00,
-      installmentAmount: 250.00,
-      totalInstallments: 20,
-      paidInstallments: 12,
-      dueDay: 20,
-      nextDueDate: new Date(devDate.getFullYear(), devDate.getMonth(), 20),
-      notes: "Taxa de juros de 1.5% a.m.",
+      profileId: "family",
+      debtType: "credit_card",
+      creditor: "Visa Gold Família",
+      description: "Cartão de despesas familiares",
+      dueDay: 5,
+      openingInvoiceAmount: 450.00,
+      openingInvoiceMonth: `${devDate.getFullYear()}-${String(devDate.getMonth() + 1).padStart(2, "0")}`,
+      notes: "Cartão compartilhado entre cônjuges",
       status: "active",
     },
   });
 
-  console.log("Dívidas de exemplo criadas.");
+  const familyDebt2 = await prisma.debt.create({
+    data: {
+      profileId: "family",
+      debtType: "installment",
+      creditor: "Móveis Dell Anno",
+      description: "Armários Planejados Cozinha",
+      totalAmount: 12000.00,
+      installmentAmount: 1000.00,
+      totalInstallments: 12,
+      paidInstallments: 4,
+      dueDay: 15,
+      nextDueDate: new Date(devDate.getFullYear(), devDate.getMonth(), 15),
+      notes: "Débito automático em conta familiar",
+      status: "active",
+    },
+  });
 
-  // 4. Criar Transações de Exemplo (Histórico recente)
+  console.log("Dívidas de exemplo criadas para ambas as contas.");
+
   const catSalario = categories.find((c) => c.name === "Salário")!;
   const catAlimentacao = categories.find((c) => c.name === "Alimentação")!;
   const catMoradia = categories.find((c) => c.name === "Moradia")!;
   const catTransporte = categories.find((c) => c.name === "Transporte")!;
-  const catLazer = categories.find((c) => c.name === "Lazer")!;
   const catAssinaturas = categories.find((c) => c.name === "Assinaturas & Serviços")!;
   const catDividas = categories.find((c) => c.name === "Dívidas & Empréstimos")!;
 
-  const transactionsData = [
+  // Transações Pessoais
+  const personalTransactions = [
     {
-      description: "Salário Mensal",
+      profileId: "personal",
+      description: "Salário Bernardo",
       type: "income",
       amount: 6500.00,
       paymentMethod: "pix",
@@ -115,7 +148,8 @@ async function main() {
       categoryId: catSalario.id,
     },
     {
-      description: "Supermercado Carrefour",
+      profileId: "personal",
+      description: "Supermercado Pessoal",
       type: "expense",
       amount: 452.80,
       paymentMethod: "card",
@@ -123,7 +157,8 @@ async function main() {
       categoryId: catAlimentacao.id,
     },
     {
-      description: "Aluguel Apartamento",
+      profileId: "personal",
+      description: "Aluguel Quarto",
       type: "expense",
       amount: 1500.00,
       paymentMethod: "pix",
@@ -131,47 +166,66 @@ async function main() {
       categoryId: catMoradia.id,
     },
     {
-      description: "Combustível Posto Ipiranga",
-      type: "expense",
-      amount: 150.00,
-      paymentMethod: "card",
-      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 12),
-      categoryId: catTransporte.id,
-    },
-    {
-      description: "Netflix & Spotify Premium",
-      type: "expense",
-      amount: 74.80,
-      paymentMethod: "card",
-      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 15),
-      categoryId: catAssinaturas.id,
-    },
-    {
-      description: "Jantar Restaurante Japonês",
-      type: "expense",
-      amount: 180.00,
-      paymentMethod: "pix",
-      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 18),
-      categoryId: catLazer.id,
-    },
-    {
+      profileId: "personal",
       description: "Parcela 2/6 - Ar Condicionado",
       type: "expense",
       amount: 300.00,
       paymentMethod: "card",
       transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 10),
       categoryId: catDividas.id,
-      debtId: debt1.id,
+      debtId: personalDebt.id,
     },
   ];
 
-  for (const trans of transactionsData) {
+  // Transações Familiares
+  const familyTransactions = [
+    {
+      profileId: "family",
+      description: "Salário Conjunto",
+      type: "income",
+      amount: 14500.00,
+      paymentMethod: "pix",
+      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 5),
+      categoryId: catSalario.id,
+    },
+    {
+      profileId: "family",
+      description: "Rancho Mensal Atacadão",
+      type: "expense",
+      amount: 1850.00,
+      paymentMethod: "card",
+      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 3),
+      categoryId: catAlimentacao.id,
+      debtId: familyDebt1.id, // Vinculado ao cartão família
+    },
+    {
+      profileId: "family",
+      description: "Prestação da Casa",
+      type: "expense",
+      amount: 3200.00,
+      paymentMethod: "pix",
+      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 10),
+      categoryId: catMoradia.id,
+    },
+    {
+      profileId: "family",
+      description: "Parcela 4/12 - Armários Cozinha",
+      type: "expense",
+      amount: 1000.00,
+      paymentMethod: "pix",
+      transactionDate: new Date(devDate.getFullYear(), devDate.getMonth(), 15),
+      categoryId: catDividas.id,
+      debtId: familyDebt2.id,
+    },
+  ];
+
+  for (const trans of [...personalTransactions, ...familyTransactions]) {
     await prisma.transaction.create({
       data: trans,
     });
   }
 
-  console.log("Transações de exemplo criadas.");
+  console.log("Transações de exemplo criadas para ambas as contas.");
   console.log("Seed concluída com sucesso!");
 }
 

@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { getActiveProfileId } from "@/lib/profile";
 
 export async function updateProfile(formData: FormData) {
   const fullName = formData.get("fullName") as string;
@@ -16,8 +17,10 @@ export async function updateProfile(formData: FormData) {
     throw new Error("Por favor, preencha todos os campos obrigatórios.");
   }
 
+  const activeProfileId = await getActiveProfileId();
+
   await prisma.profile.update({
-    where: { id: "single-profile" },
+    where: { id: activeProfileId },
     data: {
       fullName,
       occupation,

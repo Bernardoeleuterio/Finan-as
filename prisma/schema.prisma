@@ -10,17 +10,19 @@ datasource db {
 }
 
 model Profile {
-  id                  String   @id @default("single-profile") // Apenas um perfil local
+  id                  String        @id // "personal" ou "family"
   fullName            String
   occupation          String
   age                 Int
-  currentBalance      Float    @default(0.0)
-  monthlyIncome       Float    @default(0.0)
+  currentBalance      Float         @default(0.0)
+  monthlyIncome       Float         @default(0.0)
   monthlyExpenses     Float?
   monthlySavingGoal   Float?
   financialGoal       String?
-  onboardingCompleted Boolean  @default(false)
-  updatedAt           DateTime @updatedAt
+  onboardingCompleted Boolean       @default(false)
+  updatedAt           DateTime      @updatedAt
+  transactions        Transaction[]
+  debts               Debt[]
 }
 
 model Category {
@@ -32,6 +34,8 @@ model Category {
 
 model Debt {
   id                   String        @id @default(uuid())
+  profileId            String        @default("personal")
+  profile              Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
   debtType             String        // 'installment', 'credit_card', 'other'
   creditor             String
   description          String?
@@ -52,6 +56,8 @@ model Debt {
 
 model Transaction {
   id              String    @id @default(uuid())
+  profileId       String    @default("personal")
+  profile         Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   description     String
   type            String    // 'income', 'expense'
   amount          Float

@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { redirect } from "next/navigation";
+import { getActiveProfileId } from "@/lib/profile";
 
 export async function completeOnboarding(formData: FormData) {
   const fullName = formData.get("fullName") as string;
@@ -16,9 +17,11 @@ export async function completeOnboarding(formData: FormData) {
     throw new Error("Por favor, preencha todos os campos obrigatórios.");
   }
 
-  // Criar ou atualizar o único perfil local
+  const activeProfileId = await getActiveProfileId();
+
+  // Criar ou atualizar o perfil correspondente
   await prisma.profile.upsert({
-    where: { id: "single-profile" },
+    where: { id: activeProfileId },
     update: {
       fullName,
       occupation,
@@ -30,7 +33,7 @@ export async function completeOnboarding(formData: FormData) {
       onboardingCompleted: true,
     },
     create: {
-      id: "single-profile",
+      id: activeProfileId,
       fullName,
       occupation,
       age,

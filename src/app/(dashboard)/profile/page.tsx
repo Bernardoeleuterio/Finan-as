@@ -1,12 +1,15 @@
 import prisma from "@/lib/db";
 import { ProfileClient } from "./ProfileClient";
 import { notFound } from "next/navigation";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
+  const activeProfileId = await getActiveProfileId();
+  
   const profile = await prisma.profile.findUnique({
-    where: { id: "single-profile" },
+    where: { id: activeProfileId },
   });
 
   if (!profile) {

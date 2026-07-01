@@ -2,24 +2,32 @@
 
 import React, { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   ReceiptText,
   WalletCards,
   UserRound,
   CircleDollarSign,
-  TrendingUp,
+  Users,
 } from "lucide-react";
+import { switchProfile } from "@/app/actions";
 
 interface AppShellProps {
   children: ReactNode;
   profileName?: string;
   currentBalance?: number;
+  activeProfileId: string;
 }
 
-export function AppShell({ children, profileName = "Usuário", currentBalance = 0 }: AppShellProps) {
+export function AppShell({
+  children,
+  profileName = "Usuário",
+  currentBalance = 0,
+  activeProfileId,
+}: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navigation = [
     { href: "/", label: "Visão Geral", icon: LayoutDashboard },
@@ -39,6 +47,12 @@ export function AppShell({ children, profileName = "Usuário", currentBalance = 
     }).format(val);
   };
 
+  const handleProfileSwitch = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newId = e.target.value;
+    await switchProfile(newId);
+    router.refresh();
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#070a13] text-slate-100">
       {/* Sidebar - Desktop */}
@@ -52,6 +66,22 @@ export function AppShell({ children, profileName = "Usuário", currentBalance = 
             <h1 className="font-extrabold text-lg leading-tight tracking-tight text-white">FinTrack</h1>
             <span className="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Local Finance</span>
           </div>
+        </div>
+
+        {/* Workspace/Account Switcher */}
+        <div className="px-6 py-4 border-b border-[#1e293b] no-print">
+          <label className="block text-[9px] uppercase font-bold text-slate-500 mb-2 tracking-wider flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-slate-400" />
+            Selecionar Conta
+          </label>
+          <select
+            value={activeProfileId}
+            onChange={handleProfileSwitch}
+            className="w-full bg-[#161e33] border border-slate-700/80 rounded-xl py-2 px-3 text-xs text-white focus:border-emerald-500 font-semibold cursor-pointer outline-none transition-all"
+          >
+            <option value="personal">Minha Conta (Pessoal)</option>
+            <option value="family">Conta Família</option>
+          </select>
         </div>
 
         {/* Navigation */}
@@ -115,7 +145,15 @@ export function AppShell({ children, profileName = "Usuário", currentBalance = 
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <CircleDollarSign className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-base text-white tracking-tight">FinTrack</span>
+            {/* Mobile Workspace Switcher */}
+            <select
+              value={activeProfileId}
+              onChange={handleProfileSwitch}
+              className="bg-transparent text-sm font-bold text-white outline-none cursor-pointer border-none py-1"
+            >
+              <option value="personal" className="bg-[#0f1423] text-white">Bernardo (Pessoal)</option>
+              <option value="family" className="bg-[#0f1423] text-white">Família</option>
+            </select>
           </div>
 
           <div className="flex items-center gap-2">

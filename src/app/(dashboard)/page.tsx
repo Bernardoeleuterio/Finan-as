@@ -1,13 +1,16 @@
 import prisma from "@/lib/db";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { notFound } from "next/navigation";
+import { getActiveProfileId } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const activeProfileId = await getActiveProfileId();
+
   // Buscar perfil financeiro
   const profile = await prisma.profile.findUnique({
-    where: { id: "single-profile" },
+    where: { id: activeProfileId },
   });
 
   if (!profile) {
@@ -15,8 +18,11 @@ export default async function DashboardPage() {
     notFound();
   }
 
-  // Buscar transações com relações
+  // Buscar transações com relações do perfil ativo
   const transactions = await prisma.transaction.findMany({
+    where: {
+      profileId: activeProfileId,
+    },
     include: {
       category: true,
     },

@@ -2,10 +2,16 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { getActiveProfileId } from "@/lib/profile";
 
-// Buscar transações, categorias e dívidas para a tela
+// Buscar transações, categorias e dívidas para a tela correspondente ao perfil ativo
 export async function getTransactionsData() {
+  const activeProfileId = await getActiveProfileId();
+
   const transactions = await prisma.transaction.findMany({
+    where: {
+      profileId: activeProfileId,
+    },
     include: {
       category: true,
       debt: true,
@@ -23,6 +29,7 @@ export async function getTransactionsData() {
 
   const debts = await prisma.debt.findMany({
     where: {
+      profileId: activeProfileId,
       status: "active",
     },
     orderBy: {
@@ -44,6 +51,7 @@ export async function saveTransactionAction(data: {
   categoryId?: string;
   debtId?: string;
 }) {
+  const activeProfileId = await getActiveProfileId();
   const dateObj = new Date(data.transactionDate);
   const amountDiff = data.amount;
 
@@ -85,7 +93,7 @@ export async function saveTransactionAction(data: {
     }
 
     await prisma.profile.update({
-      where: { id: "single-profile" },
+      where: { id: oldTx.profileId },
       data: {
         currentBalance: {
           increment: balanceAdjustment,
@@ -94,8 +102,9 @@ export async function saveTransactionAction(data: {
     });
   } else {
     // Modo de Criação
-    const newTx = await prisma.transaction.create({
+    await prisma.transaction.create({
       data: {
+        profileId: activeProfileId,
         description: data.description,
         type: data.type,
         amount: data.amount,
@@ -109,7 +118,7 @@ export async function saveTransactionAction(data: {
     // Atualizar saldo do perfil
     const multiplier = data.type === "income" ? 1 : -1;
     await prisma.profile.update({
-      where: { id: "single-profile" },
+      where: { id: activeProfileId },
       data: {
         currentBalance: {
           increment: amountDiff * multiplier,
@@ -167,7 +176,7 @@ export async function deleteTransactionAction(id: string) {
   // Reverter impacto no saldo do perfil
   const multiplier = tx.type === "income" ? -1 : 1; // Se era receita, diminui saldo; se era despesa, aumenta
   await prisma.profile.update({
-    where: { id: "single-profile" },
+    where: { id: tx.profileId },
     data: {
       currentBalance: {
         increment: tx.amount * multiplier,

@@ -2,15 +2,24 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { getActiveProfileId } from "@/lib/profile";
 
 export async function getDebtsData() {
+  const activeProfileId = await getActiveProfileId();
+
   const debts = await prisma.debt.findMany({
+    where: {
+      profileId: activeProfileId,
+    },
     orderBy: {
       createdAt: "desc",
     },
   });
 
   const transactions = await prisma.transaction.findMany({
+    where: {
+      profileId: activeProfileId,
+    },
     include: {
       category: true,
     },
@@ -37,6 +46,7 @@ export async function saveDebtAction(data: {
   openingInvoiceMonth?: string;
   notes?: string;
 }) {
+  const activeProfileId = await getActiveProfileId();
   const dateObj = data.nextDueDate ? new Date(data.nextDueDate) : null;
 
   if (data.id) {
@@ -61,6 +71,7 @@ export async function saveDebtAction(data: {
   } else {
     await prisma.debt.create({
       data: {
+        profileId: activeProfileId,
         debtType: data.debtType,
         creditor: data.creditor,
         description: data.description || null,
@@ -138,6 +149,7 @@ export async function payDebtInstallmentAction(debtId: string) {
   const installmentNum = nextPaid;
   await prisma.transaction.create({
     data: {
+      profileId: debt.profileId,
       description: `Parcela ${installmentNum}/${total} - ${debt.creditor}`,
       type: "expense",
       amount: debt.installmentAmount ?? 0,
@@ -148,9 +160,9 @@ export async function payDebtInstallmentAction(debtId: string) {
     },
   });
 
-  // 4. Reduzir o saldo atual no perfil
+  // 4. Reduzir o saldo atual no perfil correspondente
   await prisma.profile.update({
-    where: { id: "single-profile" },
+    where: { id: debt.profileId },
     data: {
       currentBalance: {
         decrement: debt.installmentAmount ?? 0,
