@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit2, Wallet, ArrowUpRight, ArrowDownLeft, Goal } from "lucide-react";
+import { Edit2 } from "lucide-react";
 
 interface SummaryCardsProps {
   currentBalance: number;

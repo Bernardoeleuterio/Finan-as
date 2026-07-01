@@ -40,7 +40,7 @@ interface DashboardClientProps {
 
 export function DashboardClient({ profile, transactions }: DashboardClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Edit Balance Modal State
   const [isEditBalanceOpen, setIsEditBalanceOpen] = useState(false);

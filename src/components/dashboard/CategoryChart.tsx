@@ -55,7 +55,7 @@ export function CategoryChart({ data }: CategoryChartProps) {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => formatCurrency(Number(value))}
+                      formatter={(value: unknown) => formatCurrency(Number(value))}
                       contentStyle={{
                         backgroundColor: "#0f1423",
                         borderColor: "#1e293b",

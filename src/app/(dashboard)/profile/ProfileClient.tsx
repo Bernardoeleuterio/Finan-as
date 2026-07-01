@@ -73,8 +73,9 @@ export function ProfileClient({ initialProfile }: ProfileClientProps) {
         financialGoal: formData.get("financialGoal") as string || "",
       });
       setIsEditing(false);
-    } catch (err: any) {
-      setError(err.message || "Erro ao atualizar dados.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erro ao atualizar dados.";
+      setError(msg);
     } finally {
       setLoading(false);
     }

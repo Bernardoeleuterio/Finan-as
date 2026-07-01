@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Calendar, Wallet, Landmark, FileText, CheckCircle2 } from "lucide-react";
+import { X, Landmark, FileText } from "lucide-react";
 
 interface Transaction {
   id: string;

@@ -60,7 +60,7 @@ export function NewDebtModal({ initialDebt, onClose, onSave }: NewDebtModalProps
   const [dueDay, setDueDay] = useState(initialDebt?.dueDay?.toString() ?? "10");
   
   // Format Date for Input Value
-  const formatDateForInput = (dateVal: any) => {
+  const formatDateForInput = (dateVal: Date | string | null | undefined) => {
     if (!dateVal) return new Date().toISOString().slice(0, 10);
     const dateObj = typeof dateVal === "string" ? new Date(dateVal) : dateVal;
     return dateObj.toISOString().slice(0, 10);

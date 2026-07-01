@@ -146,7 +146,7 @@ export function NewTransactionModal({
       const created = await onCreateCategory(name, type);
       setCategoryId(created.id);
       setNewCategoryName("");
-    } catch (err: any) {
+    } catch {
       setCatError("Erro ao criar categoria.");
     } finally {
       setIsCreatingCategory(false);
@@ -286,7 +286,7 @@ export function NewTransactionModal({
               </select>
               {debts.length === 0 && (
                 <p className="text-[10px] text-amber-400 font-semibold mt-1">
-                  Cadastre um cartão de crédito na página de "Dívidas" antes para parcelar compras.
+                  Cadastre um cartão de crédito na página de &quot;Dívidas&quot; antes para parcelar compras.
                 </p>
               )}
             </div>

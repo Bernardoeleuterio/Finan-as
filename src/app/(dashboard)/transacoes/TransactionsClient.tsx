@@ -48,7 +48,7 @@ export function TransactionsClient({
   initialDebts,
 }: TransactionsClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -70,7 +70,7 @@ export function TransactionsClient({
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: Parameters<typeof saveTransactionAction>[0]) => {
     await saveTransactionAction(data);
     startTransition(() => {
       router.refresh();

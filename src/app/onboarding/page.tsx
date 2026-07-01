@@ -24,8 +24,9 @@ export default function OnboardingPage() {
     const formData = new FormData(e.currentTarget);
     try {
       await completeOnboarding(formData);
-    } catch (err: any) {
-      setError(err.message || "Ocorreu um erro ao salvar o perfil.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Ocorreu um erro ao salvar o perfil.";
+      setError(msg);
       setLoading(false);
     }
   }

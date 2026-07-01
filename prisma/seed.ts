@@ -42,7 +42,7 @@ async function main() {
   console.log(`${categories.length} categorias criadas.`);
 
   // 2. Criar Perfil Pessoal ("personal")
-  const personalProfile = await prisma.profile.create({
+  await prisma.profile.create({
     data: {
       id: "personal",
       fullName: "Bernardo Eleutério",
@@ -58,7 +58,7 @@ async function main() {
   });
 
   // 3. Criar Perfil Familiar ("family")
-  const familyProfile = await prisma.profile.create({
+  await prisma.profile.create({
     data: {
       id: "family",
       fullName: "Família Eleutério",
@@ -132,8 +132,6 @@ async function main() {
   const catSalario = categories.find((c) => c.name === "Salário")!;
   const catAlimentacao = categories.find((c) => c.name === "Alimentação")!;
   const catMoradia = categories.find((c) => c.name === "Moradia")!;
-  const catTransporte = categories.find((c) => c.name === "Transporte")!;
-  const catAssinaturas = categories.find((c) => c.name === "Assinaturas & Serviços")!;
   const catDividas = categories.find((c) => c.name === "Dívidas & Empréstimos")!;
 
   // Transações Pessoais

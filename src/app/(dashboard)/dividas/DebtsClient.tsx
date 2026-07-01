@@ -6,14 +6,7 @@ import {
   Plus,
   WalletCards,
   Calendar,
-  CreditCard,
-  Receipt,
-  Eye,
-  Edit2,
   Check,
-  Trash2,
-  TrendingUp,
-  AlertCircle,
 } from "lucide-react";
 import { NewDebtModal } from "@/components/debts/NewDebtModal";
 import { DebtDetailsModal } from "@/components/debts/DebtDetailsModal";
@@ -85,7 +78,7 @@ function isInstallmentDueInMonth(debt: Debt, selectedMonth: string) {
 
 export function DebtsClient({ initialDebts, initialTransactions }: DebtsClientProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Estados locais
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,7 +122,7 @@ export function DebtsClient({ initialDebts, initialTransactions }: DebtsClientPr
   };
 
   // Salvar Dívida
-  const handleSaveDebt = async (data: any) => {
+  const handleSaveDebt = async (data: Parameters<typeof saveDebtAction>[0]) => {
     await saveDebtAction(data);
     startTransition(() => {
       router.refresh();
@@ -248,14 +241,14 @@ export function DebtsClient({ initialDebts, initialTransactions }: DebtsClientPr
       <div className="bg-[#0f1423] border border-slate-800 rounded-3xl p-5 shadow-lg flex flex-col sm:flex-row gap-4 items-center justify-between">
         {/* Segmented Filter */}
         <div className="flex bg-[#161e33] p-1.5 rounded-xl border border-slate-800 w-full sm:w-auto">
-          {[
+          {([
             { label: "Todos", value: "all" },
             { label: "Dívidas", value: "installment" },
             { label: "Cartões", value: "credit_card" },
-          ].map((option) => (
+          ] as const).map((option) => (
             <button
               key={option.value}
-              onClick={() => setDebtTypeFilter(option.value as any)}
+              onClick={() => setDebtTypeFilter(option.value)}
               className={`flex-1 sm:flex-none text-xs font-bold py-2 px-4 rounded-lg transition cursor-pointer ${
                 debtTypeFilter === option.value
                   ? "bg-slate-800 text-white shadow"

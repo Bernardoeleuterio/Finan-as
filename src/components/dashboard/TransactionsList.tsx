@@ -7,7 +7,6 @@ import {
   Search,
   Pencil,
   Trash2,
-  Download,
   Filter,
   FileSpreadsheet,
 } from "lucide-react";
