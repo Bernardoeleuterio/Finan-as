@@ -139,3 +139,50 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--emerald);
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
+
+/* Print / PDF Styles */
+@media print {
+  aside, nav, header, button, .no-print, [role="button"] {
+    display: none !important;
+  }
+  
+  body, main, div, table, tr, td, th {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .glass-card, div[class*="bg-"] {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    color: #0f172a !important;
+  }
+  
+  h1, h2, h3, h4, p, span, strong, td, th {
+    color: #0f172a !important;
+  }
+  
+  .text-slate-400, .text-slate-500 {
+    color: #64748b !important;
+  }
+
+  .text-emerald-400 {
+    color: #059669 !important;
+  }
+
+  .text-rose-400 {
+    color: #dc2626 !important;
+  }
+
+  .border-slate-800 {
+    border-color: #cbd5e1 !important;
+  }
+}
+

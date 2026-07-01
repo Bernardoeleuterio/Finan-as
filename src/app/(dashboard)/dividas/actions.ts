@@ -11,6 +11,9 @@ export async function getDebtsData() {
   });
 
   const transactions = await prisma.transaction.findMany({
+    include: {
+      category: true,
+    },
     orderBy: {
       transactionDate: "desc",
     },
