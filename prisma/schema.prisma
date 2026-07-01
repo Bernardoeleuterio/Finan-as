@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Profile {
+  id                  String   @id @default("single-profile") // Apenas um perfil local
+  fullName            String
+  occupation          String
+  age                 Int
+  currentBalance      Float    @default(0.0)
+  monthlyIncome       Float    @default(0.0)
+  monthlyExpenses     Float?
+  monthlySavingGoal   Float?
+  financialGoal       String?
+  onboardingCompleted Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  name         String
+  type         String        // 'income', 'expense', 'both'
+  transactions Transaction[]
+}
+
+model Debt {
+  id                   String        @id @default(uuid())
+  debtType             String        // 'installment', 'credit_card', 'other'
+  creditor             String
+  description          String?
+  totalAmount          Float?
+  installmentAmount    Float?
+  totalInstallments    Int?
+  paidInstallments     Int?          @default(0)
+  dueDay               Int
+  nextDueDate          DateTime?
+  openingInvoiceAmount Float?
+  openingInvoiceMonth  String?
+  notes                String?
+  status               String        @default("active") // 'active', 'paid'
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  transactions         Transaction[]
+}
+
+model Transaction {
+  id              String    @id @default(uuid())
+  description     String
+  type            String    // 'income', 'expense'
+  amount          Float
+  paymentMethod   String    // 'pix', 'card', 'cash', 'boleto'
+  transactionDate DateTime
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  debtId          String?
+  debt            Debt?     @relation(fields: [debtId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
